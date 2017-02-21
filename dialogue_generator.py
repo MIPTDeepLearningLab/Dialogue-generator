@@ -4,10 +4,8 @@ from numpy.random import choice
 from random import shuffle
 from random import random
 from random import randrange
-from numpy import array
 from collections import defaultdict
 import copy
-import os
 
 
 class Generator:
@@ -15,10 +13,8 @@ class Generator:
     def __init__(self, greetings, synonim_fills, slot_fills, substitutions, templates, farewells, tagging_type="word"):
         self._greetings = greetings
         self._synonim_fills = synonim_fills
-
         self._slot_fills = slot_fills
         self._slot_fills_copy = {key: slot_fills[key][:] for key in slot_fills.keys()}
-
         self._templates = templates
         self._substitutions = substitutions
         self._dialogue = []
@@ -90,7 +86,6 @@ class Generator:
                         template[idx] = [choice(self._synonim_fills[val[1:]]), case, type_]
 
     def _tag_sentence(self, template):
-
         if self._tagging_type:
             tagged_string = []
             for item in template:
@@ -152,12 +147,10 @@ class Generator:
                 dialogue_phrase.append(item)
         dialogue_phrase = ' '.join(dialogue_phrase)
         self._dialogue.append(dialogue_phrase)
-
         self._tag_sentence(filled_template)
         return filled_template
 
     def _sample_question_until(self, name, condition=None):
-
         response_type, response_template = self._templates[name]["responses"][randrange(len(self._templates[name]["responses"]))]
         if condition is None:
             return response_type, response_template
@@ -181,10 +174,8 @@ class Generator:
             else:
                 self._slot_fills[self._current_slot] = self._available_products
                 response_type, response_template = self._sample_question_until(name, True)
-
         else:
             response_type, response_template = self._sample_question_until(name)
-
         return question_template, substitution, response_template, response_type
 
     def _process_simple(self, templates):
@@ -211,7 +202,6 @@ class Generator:
                     question_template, substitution, response_template, response_type = self._get_template_and_substitution(specific_intention)
                     self._fill_template(question_template, substitution)
                     self._fill_template(response_template, None)
-
         self._process_simple(self._farewells)
         return '\n'.join(self._dialogue), self._tagging
 
@@ -229,10 +219,8 @@ if __name__ == "__main__":
     path = "data/data.json"
     with open(path) as f:
         greetings, synonim_fillings, slot_fillings, templates, substitutions, farewells = json.load(f)
-
     generator = Generator(greetings=greetings, synonim_fills=synonim_fillings, slot_fills=slot_fillings,
                           templates=templates, substitutions=substitutions, farewells=farewells, tagging_type="word")
-
     for _ in range(100):
         dialogue, tagging = generator.generate_dialogue()
         dialogue = dialogue.split("\n")
